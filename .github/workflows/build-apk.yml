@@ -1,0 +1,42 @@
+name: Build APK Kasir Offline
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Kasir_Toko_Obat_Pertanian_APK_Offline_Lengkap.zip'
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ambil file proyek
+        uses: actions/checkout@v4
+
+      - name: Siapkan Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Ekstrak proyek
+        run: |
+          mkdir project
+          unzip -q Kasir_Toko_Obat_Pertanian_APK_Offline_Lengkap.zip -d project
+
+      - name: Siapkan Gradle
+        run: |
+          wget https://services.gradle.org/distributions/gradle-8.9-bin.zip
+          unzip -q gradle-8.9-bin.zip -d /tmp
+
+      - name: Bangun APK
+        run: |
+          /tmp/gradle-8.9/bin/gradle -p project assembleDebug
+
+      - name: Simpan hasil APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: APK-Kasir-Toko-Obat-Pertanian
+          path: project/app/build/outputs/apk/debug/app-debug.apk
